@@ -1,5 +1,5 @@
 This program shows the simulation codes of the research results about Affine Frequency Division Multiplexing (AFDM) waveform
-UWB-LAB, School of Information Science and Technology, Harbin Institute of Technology (Shenzhen)
+<br>UWB-LAB, School of Information Science and Technology, Harbin Institute of Technology (Shenzhen)
 
 All the codes in this program have been verified to run on 2023b.
 
