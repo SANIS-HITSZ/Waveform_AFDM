@@ -5,5 +5,5 @@ All the codes in this program have been verified to run on 2023b.
 
 File lists:
 1. Simu_OS_PS_AFDM.m
-\\These are the simulation codes of the proposed overlap-summation-based pulse shaping transceiver for AFDM systems (OS-PS-AFDM), described in:
+<br>These are the simulation codes of the proposed overlap-summation-based pulse shaping transceiver for AFDM systems (OS-PS-AFDM), described in:
 Haojian Zhang, etc., ``Overlap-Summation-Based Pulse Shaping Transceiver for Affine Frequency Division Multiplexing'', submitted to Science China Information Sciences, 2026.
