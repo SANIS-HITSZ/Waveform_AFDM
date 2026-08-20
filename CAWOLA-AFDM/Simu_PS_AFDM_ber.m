@@ -444,7 +444,8 @@ end
 
 %%  Channel-awared receive pulse shaping window
 function [numTap, powerTap, delayTap, dopplerTap] ...
-    = chanTap_aware(yPilot, powerNoise, upSampCoefDaft, numDelay, numDoppler)
+    = chanTap_aware(yPilot, powerNoise, indxRegionPilot, ...
+        prechirpRate, upSampCoefDaft, numDelay, numDoppler)
     % threshold filtering
     probFalseAlarm = 1e-4;
     thres = sqrt( - powerNoise*log(probFalseAlarm) );
