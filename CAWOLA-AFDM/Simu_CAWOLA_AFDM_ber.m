@@ -151,7 +151,8 @@ for indxParams = 0: numParams-1
             yPilot_noised = yPilot + sqrt(10^(-snrDb/10))*yNoisePilot;
             powerNoisePilot = mean(abs(sqrt(10^(-snrDb/10))*yNoisePilot).^2);
             [numTap, powerTap, delayTap, dopplerTap] ...
-                = chanTap_aware(yPilot_noised, powerNoisePilot, upSampCoefDaft, numDelay, numDoppler);
+                = chanTap_aware(yPilot_noised, powerNoisePilot, indxRegionPilot, ...
+        			prechirpRate, upSampCoefDaft, numDelay, numDoppler);
             winRx = chanAwareWolaWinRx(winRx_temp, numRe, lenCp_ext, chirpRate, ...
                 winOrder, numTap, powerTap, dopplerTap);
         end
@@ -475,7 +476,8 @@ end
 
 %%  Channel-awared receive pulse shaping window
 function [numTap, powerTap, delayTap, dopplerTap] ...
-    = chanTap_aware(yPilot, powerNoise, upSampCoefDaft, numDelay, numDoppler)
+    = chanTap_aware(yPilot, powerNoise, indxRegionPilot, ...
+        prechirpRate, upSampCoefDaft, numDelay, numDoppler)
     % threshold filtering
     probFalseAlarm = 1e-4;
     thres = sqrt( - powerNoise*log(probFalseAlarm) );
