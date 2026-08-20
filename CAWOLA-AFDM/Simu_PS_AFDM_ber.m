@@ -12,7 +12,7 @@ modulatOrder = 10;    % scheduled modulation order
 filterOrder = 128;   % order of the time-domain pulse shaping filter (after up-sampling)
 rollOffTime = 0.2;    % roll-off factor for the time-domain pulse shaping (root-raised-cosine)
 upSampleCoef = 4;     % upsampling factor in the time domain
-lenPulseTime = 16;    % considered valid length of the overall time-domain shaping pulse
+lenPulseTime = 32;    % considered valid length of the overall time-domain shaping pulse
 bitsRef_temp = zeros(2^modulatOrder, modulatOrder);    % transmit bit-alphabet
 qamsRef_temp = zeros(1, 2^modulatOrder);               % transmit qam-alphabet
 for indxQam = 0: 2^modulatOrder-1
@@ -451,7 +451,7 @@ function [numTap, powerTap, delayTap, dopplerTap] ...
     yPilot_filt = yPilot;
     yPilot_filt(abs(yPilot) <= thres) = 0;
     % upsampling
-    yPilot_upSamp = fft(ifft(yPilot_filt).*chebwin(numDelay*numDoppler,70).', ...
+    yPilot_upSamp = fft(ifft(yPilot_filt).*hamming(numDelay*numDoppler).', ...
         upSampCoefDaft*numDelay*numDoppler);
     % peaks extraction
     [pks, locs] = findpeaks(abs(yPilot_upSamp));
