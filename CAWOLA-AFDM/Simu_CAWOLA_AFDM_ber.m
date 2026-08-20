@@ -12,7 +12,7 @@ modulatOrder = 10;    % scheduled modulation order
 filterOrder = 128;   % order of the time-domain pulse shaping filter (after up-sampling)
 rollOffTime = 0.2;    % roll-off factor for the time-domain pulse shaping (root-raised-cosine)
 upSampleCoef = 4;     % upsampling factor in the time domain
-lenPulseTime = 16;    % considered valid length of the overall time-domain shaping pulse
+lenPulseTime = 32;    % considered valid length of the overall time-domain shaping pulse
 bitsRef_temp = zeros(2^modulatOrder, modulatOrder);    % transmit bit-alphabet
 qamsRef_temp = zeros(1, 2^modulatOrder);               % transmit qam-alphabet
 for indxQam = 0: 2^modulatOrder-1
@@ -24,6 +24,7 @@ numRe_schd = 50*12;   % scheduled resource element number
 indxRe_schd = [startRe_schd: startRe_schd + numRe_schd - 1];  % scheduled resource element indexes
 typeChanMat = 1;
 winOrder = 8;
+upSampCoefDaft = 8;
 
 %% Monte Carlo tests
 numTest = 10000;                   % the number of monte carlo tests
@@ -148,7 +149,6 @@ for indxParams = 0: numParams-1
             yPilot = yAll(indxRegionPilot+1);
             yNoisePilot = yNoiseAll(indxRegionPilot+1);
             yPilot_noised = yPilot + sqrt(10^(-snrDb/10))*yNoisePilot;
-            upSampCoefDaft = 4;
             powerNoisePilot = mean(abs(sqrt(10^(-snrDb/10))*yNoisePilot).^2);
             [numTap, powerTap, delayTap, dopplerTap] ...
                 = chanTap_aware(yPilot_noised, powerNoisePilot, upSampCoefDaft, numDelay, numDoppler);
@@ -482,7 +482,7 @@ function [numTap, powerTap, delayTap, dopplerTap] ...
     yPilot_filt = yPilot;
     yPilot_filt(abs(yPilot) <= thres) = 0;
     % upsampling
-    yPilot_upSamp = fft(ifft(yPilot_filt).*chebwin(numDelay*numDoppler,70).', ...
+    yPilot_upSamp = fft(ifft(yPilot_filt).*hamming(numDelay*numDoppler).', ...
         upSampCoefDaft*numDelay*numDoppler);
     % peaks extraction
     [pks, locs] = findpeaks(abs(yPilot_upSamp));
