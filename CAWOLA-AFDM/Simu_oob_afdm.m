@@ -11,7 +11,7 @@ color_set = [
 ];
 
 %% Basic configurations
-numRe        = 4096;                  % number of subcarriers in resource grid
+numRe        = 4096;                  % number of resource elements in resource grid
 numRe_Rehd   = 4096;                  % Reheduled number of resource elements
 lenCp        = 288;                   % length of prefix
 rollOffWin   = 0.2;
