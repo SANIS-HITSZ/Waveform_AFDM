@@ -95,7 +95,7 @@ for indxParams = 0: numParams-1
 
         %% Chirp-rate
         k_reserve = 4;     % reserved guard spacing for fractional doppler
-        chirpRate = (2*(k_max+k_reserve)+1)/(2*numRe);  % chirp-rate
+        chirpRate = (2*(ceil(k_max)+k_reserve)+1)/(2*numRe);  % chirp-rate
         prechirpRate = 0;   % prechirp-rate
 
         %% Data modulation symbols
