@@ -303,16 +303,12 @@ function hData = chanMatAfdm(numRe, indxRe_schd, lenCp_ext, ...
             end
         end
     end
-    for indxRe = 0: numRe_schd-1
-        hData(:, indxRe+1) = winRx .* hData(:, indxRe+1);
-    end
+    hData = winRx .* hData;
     hData = [hData(lenCp_ext+1: end, :)] + ...
         [zeros(numRe-lenCp_ext, numRe_schd); hData(1:lenCp_ext, :)];
     dePrechirpPhase = exp(- 1i * 2*pi * prechirpRate*[0:numRe-1].^2).';
-    for indxRe = 0: numRe_schd-1
-        hData(:, indxRe+1) = fft(hData(:, indxRe+1)) / sqrt(numRe);
-        hData(:, indxRe+1) = dePrechirpPhase .* hData(:, indxRe+1);
-    end
+	hData = fft(hData, [], 1) / sqrt(numRe);
+	hData = dePrechirpPhase .* hData;
 end
 
 %% Channel estimation using embedded pilot
