@@ -11,19 +11,19 @@ color_set = [
 ];
 
 %% Basic configurations
-numSc        = 4096;                  % number of subcarriers in resource grid
-numSc_schd   = 4096;                  % scheduled number of resource elements
+numRe        = 4096;                  % number of subcarriers in resource grid
+numRe_Rehd   = 4096;                  % Reheduled number of resource elements
 lenCp        = 288;                   % length of prefix
 rollOffWin   = 0.2;
 numSym       = 200;                  % number of AFDM symbols
-indxSc_schd  = [-numSc_schd/2: numSc_schd/2-1];     % scheduled indices of resource elements
+indxRe_Rehd  = [-numRe_Rehd/2: numRe_Rehd/2-1];     % Reheduled indices of resource elements
 upSampCoef_time = 4;                % upsampling factor in the time domain
 upSampCoef_freq = 8;                % spectrum upsampling
-modulatOrder = 10;    % scheduled modulation order
+modulatOrder = 10;    % Reheduled modulation order
 
 k_max = 3;
 k_reserve = 4;     % reserved guard spacing for fractional doppler
-chirpRate = (2*(ceil(k_max)+k_reserve)+1)/(2*numSc);  % chirp-rate
+chirpRate = (2*(ceil(k_max)+k_reserve)+1)/(2*numRe);  % chirp-rate
 prechirpRate = 0;   % prechirp-rate
 
 bitsRef = zeros(2^modulatOrder, modulatOrder);    % transmit bit-alphabet
@@ -33,36 +33,36 @@ for indxQam = 0: 2^modulatOrder-1
     qamsRef(indxQam+1) = func_nrQamMapper(bitsRef(indxQam+1, :));
 end
 
-lenSegment = 2*numSc*upSampCoef_time;
+lenSegment = 2*numRe*upSampCoef_time;
 lenOverlap = lenSegment / 2;
-lenPSD     = numSc*upSampCoef_freq;
+lenPSD     = numRe*upSampCoef_freq;
 winAnalysis = hamming(lenSegment);
 
 typeInterp = 1;
-filterOrder  = numSc*upSampCoef_time;
+filterOrder  = numRe*upSampCoef_time;
 rollOffTime  = 0.2; 
 filterCoefTx = rootRaisedCosFilter(rollOffTime, filterOrder, upSampCoef_time);
 filterCoefTx = filterCoefTx * sqrt(upSampCoef_time);
 
 %% QAM data
-symData = round(rand(numSym+2,numSc_schd)*2^modulatOrder - 0.5);   % transmit decimal symbols
+symData = round(rand(numSym+2,numRe_Rehd)*2^modulatOrder - 0.5);   % transmit decimal symbols
 qamData = qamsRef(symData+1);     % transmit qams
-X = zeros(numSym+2, numSc);
-X(:, mod(indxSc_schd,numSc)+1) = qamData;
+X = zeros(numSym+2, numRe);
+X(:, mod(indxRe_Rehd,numRe)+1) = qamData;
 
 %% CPP-AFDM
 lenCp_ext = 0;
-winTx = rectwin(numSc).';
+winTx = rectwin(numRe).';
 s_overSamp = [];
 for i_sym = 0:(numSym+2)-1
     % baseband
     s_sym = afdmModulator(X(i_sym+1,:), ...
-        numSc, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate);
+        numRe, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate);
     % upsampling
     if typeInterp == 0
         S_base = fftshift(fft(s_sym));
-        S_interp = [zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2), ...
-            S_base, zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2)];
+        S_interp = [zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2), ...
+            S_base, zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2)];
         s_interp = ifft(ifftshift(S_interp)) * upSampCoef_time;
     else
         s_interp = zeros(1, upSampCoef_time*length(s_sym));
@@ -73,24 +73,24 @@ for i_sym = 0:(numSym+2)-1
     %
     s_overSamp = [s_overSamp, s_interp];
 end
-s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
-    end-upSampCoef_time*(numSc+lenCp+lenCp_ext));
+s_overSamp = s_overSamp(upSampCoef_time*(numRe+lenCp+lenCp_ext)+1: ...
+    end-upSampCoef_time*(numRe+lenCp+lenCp_ext));
 % spectral estimation
 [psd_cppAfdm, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
 %% PS-AFDM (legacy)
 lenCp_ext = 0;
-winTx = chebwin(numSc, 90).';
+winTx = chebwin(numRe, 90).';
 s_overSamp = [];
 for i_sym = 0:(numSym+2)-1
     % baseband
     s_sym = afdmModulator(X(i_sym+1,:), ...
-        numSc, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate);
+        numRe, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate);
     % upsampling
     if typeInterp == 0
         S_base = fftshift(fft(s_sym));
-        S_interp = [zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2), ...
-            S_base, zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2)];
+        S_interp = [zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2), ...
+            S_base, zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2)];
         s_interp = ifft(ifftshift(S_interp)) * upSampCoef_time;
     else
         s_interp = zeros(1, upSampCoef_time*length(s_sym));
@@ -101,29 +101,29 @@ for i_sym = 0:(numSym+2)-1
     %
     s_overSamp = [s_overSamp, s_interp];
 end
-s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
-    end-upSampCoef_time*(numSc+lenCp+lenCp_ext));
+s_overSamp = s_overSamp(upSampCoef_time*(numRe+lenCp+lenCp_ext)+1: ...
+    end-upSampCoef_time*(numRe+lenCp+lenCp_ext));
 % spectral estimation
 [psd_psAfdm, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
 %% WOLA/CAWOLA-AFDM
 lenWin_oob = 8;
-lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
+lenCp_ext = ceil(rollOffWin*numRe);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
-winTx = rectwin(numSc).';
+winTx = rectwin(numRe).';
 raiseEdgeLeft = 0.5*(1 - cos(pi*([0:lenWin_oob-1]+0.5)/lenWin_oob));
 raiseEdgeRight = fliplr(raiseEdgeLeft);
-winTx_oob = [raiseEdgeLeft, ones(1,numSc+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
+winTx_oob = [raiseEdgeLeft, ones(1,numRe+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
 s_overSamp = [];
 for i_sym = 0:(numSym+2)-1
     % baseband
     s_sym = afdmModulator_oobSup(X(i_sym+1,:), ...
-        numSc, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
+        numRe, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
     % upsampling
     if typeInterp == 0
         S_base = fftshift(fft(s_sym));
-        S_interp = [zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2), ...
-            S_base, zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2)];
+        S_interp = [zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2), ...
+            S_base, zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2)];
         s_interp = ifft(ifftshift(S_interp)) * upSampCoef_time;
     else
         s_interp = zeros(1, upSampCoef_time*length(s_sym));
@@ -141,29 +141,29 @@ for i_sym = 0:(numSym+2)-1
         s_overSamp = [s_overSamp, s_interp(upSampCoef_time*lenWin_oob+1: end)];
     end
 end
-s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
-    end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
+s_overSamp = s_overSamp(upSampCoef_time*(numRe+lenCp+lenCp_ext)+1: ...
+    end-upSampCoef_time*(numRe+lenCp+lenCp_ext+lenWin_oob));
 % spectral estimation
 [psd_wolaAfdm1, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
 %% WOLA/CAWOLA-AFDM
 lenWin_oob = 16;
-lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
+lenCp_ext = ceil(rollOffWin*numRe);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
-winTx = rectwin(numSc).';
+winTx = rectwin(numRe).';
 raiseEdgeLeft = 0.5*(1 - cos(pi*([0:lenWin_oob-1]+0.5)/lenWin_oob));
 raiseEdgeRight = fliplr(raiseEdgeLeft);
-winTx_oob = [raiseEdgeLeft, ones(1,numSc+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
+winTx_oob = [raiseEdgeLeft, ones(1,numRe+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
 s_overSamp = [];
 for i_sym = 0:(numSym+2)-1
     % baseband
     s_sym = afdmModulator_oobSup(X(i_sym+1,:), ...
-        numSc, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
+        numRe, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
     % upsampling
     if typeInterp == 0
         S_base = fftshift(fft(s_sym));
-        S_interp = [zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2), ...
-            S_base, zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2)];
+        S_interp = [zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2), ...
+            S_base, zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2)];
         s_interp = ifft(ifftshift(S_interp)) * upSampCoef_time;
     else
         s_interp = zeros(1, upSampCoef_time*length(s_sym));
@@ -181,29 +181,29 @@ for i_sym = 0:(numSym+2)-1
         s_overSamp = [s_overSamp, s_interp(upSampCoef_time*lenWin_oob+1: end)];
     end
 end
-s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
-    end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
+s_overSamp = s_overSamp(upSampCoef_time*(numRe+lenCp+lenCp_ext)+1: ...
+    end-upSampCoef_time*(numRe+lenCp+lenCp_ext+lenWin_oob));
 % spectral estimation
 [psd_wolaAfdm2, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
 %% WOLA/CAWOLA-AFDM
 lenWin_oob = 32;
-lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
+lenCp_ext = ceil(rollOffWin*numRe);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
-winTx = rectwin(numSc).';
+winTx = rectwin(numRe).';
 raiseEdgeLeft = 0.5*(1 - cos(pi*([0:lenWin_oob-1]+0.5)/lenWin_oob));
 raiseEdgeRight = fliplr(raiseEdgeLeft);
-winTx_oob = [raiseEdgeLeft, ones(1,numSc+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
+winTx_oob = [raiseEdgeLeft, ones(1,numRe+lenCp+lenCp_ext-lenWin_oob), raiseEdgeRight];
 s_overSamp = [];
 for i_sym = 0:(numSym+2)-1
     % baseband
     s_sym = afdmModulator_oobSup(X(i_sym+1,:), ...
-        numSc, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
+        numRe, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate);
     % upsampling
     if typeInterp == 0
         S_base = fftshift(fft(s_sym));
-        S_interp = [zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2), ...
-            S_base, zeros(1,(upSampCoef_time-1)*(numSc+lenCp+lenCp_ext)/2)];
+        S_interp = [zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2), ...
+            S_base, zeros(1,(upSampCoef_time-1)*(numRe+lenCp+lenCp_ext)/2)];
         s_interp = ifft(ifftshift(S_interp)) * upSampCoef_time;
     else
         s_interp = zeros(1, upSampCoef_time*length(s_sym));
@@ -221,14 +221,14 @@ for i_sym = 0:(numSym+2)-1
         s_overSamp = [s_overSamp, s_interp(upSampCoef_time*lenWin_oob+1: end)];
     end
 end
-s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
-    end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
+s_overSamp = s_overSamp(upSampCoef_time*(numRe+lenCp+lenCp_ext)+1: ...
+    end-upSampCoef_time*(numRe+lenCp+lenCp_ext+lenWin_oob));
 % spectral estimation
 [psd_wolaAfdm3, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
 %% Figures
 powerOffset_welch = 2*pi/upSampCoef_time;
-freqLabel = [-lenPSD/2: lenPSD/2-1] * (upSampCoef_time*numSc)/lenPSD;
+freqLabel = [-lenPSD/2: lenPSD/2-1] * (upSampCoef_time*numRe)/lenPSD;
 figure; 
 plot(freqLabel, 10*log10(fftshift(psd_cppAfdm*powerOffset_welch)),'Color',color_set(1,:),'linewidth',1);
 hold on;
@@ -236,8 +236,8 @@ plot(freqLabel, 10*log10(fftshift(psd_psAfdm*powerOffset_welch)),'Color',color_s
 plot(freqLabel, 10*log10(fftshift(psd_wolaAfdm1*powerOffset_welch)),'Color',color_set(3,:),'linewidth',1);
 plot(freqLabel, 10*log10(fftshift(psd_wolaAfdm2*powerOffset_welch)),'Color',color_set(4,:),'linewidth',1);
 plot(freqLabel, 10*log10(fftshift(psd_wolaAfdm3*powerOffset_welch)),'Color',color_set(5,:),'linewidth',1);
-xline(-numSc*(1+rollOffTime)/2, 'k:', 'LineWidth', 1.5);
-xline(numSc*(1+rollOffTime)/2-1, 'k:', 'LineWidth', 1.5);
+xline(-numRe*(1+rollOffTime)/2, 'k:', 'LineWidth', 1.5);
+xline(numRe*(1+rollOffTime)/2-1, 'k:', 'LineWidth', 1.5);
 xlabel('Normalized Frequency $f/\Delta_{\mathrm{F}}$', 'interpreter', 'latex', 'FontSize', 12);
 ylabel('Normalized Magnitude (dB)', 'interpreter', 'latex', 'FontSize', 12);
 legend({'CPP-AFDM [7]', 'PS-AFDM [10] (Tx. Cheb.90dB Win.)', ...
@@ -246,17 +246,17 @@ legend({'CPP-AFDM [7]', 'PS-AFDM [10] (Tx. Cheb.90dB Win.)', ...
     '(proposed) (CA)WOLA-AFDM (Tx. RC. Win. $L_{\mathrm{O}}=32$)'}, ...
     'interpreter', 'latex', 'Box', 'off', 'FontSize', 10);
 grid on;
-axis([0, 2*numSc, -90, 10]);
+axis([0, 2*numRe, -90, 10]);
 
 
 %% AFDM modulator
 function s_afdm = afdmModulator(xData, ...
-    numSc, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate)
+    numRe, lenCp, lenCp_ext, winTx, chirpRate, prechirpRate)
     % chirp base function
-    chirpBase1 = exp(1i * 2 * pi * chirpRate * [-(lenCp+lenCp_ext): numSc-1].^2);
-    chirpBase2 = exp(1i * 2 * pi * prechirpRate * [0: numSc-1].^2);
+    chirpBase1 = exp(1i * 2 * pi * chirpRate * [-(lenCp+lenCp_ext): numRe-1].^2);
+    chirpBase2 = exp(1i * 2 * pi * prechirpRate * [0: numRe-1].^2);
     % prechirping and ifft
-    s_ofdm = ifft(xData .* chirpBase2) * sqrt(numSc);
+    s_ofdm = ifft(xData .* chirpBase2) * sqrt(numRe);
     % transmit shaping windowing
     winTx = winTx / sqrt(mean(abs(winTx).^2));
     s_ofdmW = s_ofdm .* winTx;
@@ -267,13 +267,13 @@ function s_afdm = afdmModulator(xData, ...
 end
 
 function s_afdm = afdmModulator_oobSup(xData, ...
-    numSc, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate)
+    numRe, lenCp, lenCp_ext, winTx, winTx_oob, chirpRate, prechirpRate)
     % chirp base function
-    lenWin_oob = length(winTx_oob) - (numSc+lenCp+lenCp_ext);
-    chirpBase1 = exp(1i * 2 * pi * chirpRate * [-(lenCp+lenCp_ext): numSc+lenWin_oob-1].^2);
-    chirpBase2 = exp(1i * 2 * pi * prechirpRate * [0: numSc-1].^2);
+    lenWin_oob = length(winTx_oob) - (numRe+lenCp+lenCp_ext);
+    chirpBase1 = exp(1i * 2 * pi * chirpRate * [-(lenCp+lenCp_ext): numRe+lenWin_oob-1].^2);
+    chirpBase2 = exp(1i * 2 * pi * prechirpRate * [0: numRe-1].^2);
     % prechirping and ifft
-    s_ofdm = ifft(xData .* chirpBase2) * sqrt(numSc);
+    s_ofdm = ifft(xData .* chirpBase2) * sqrt(numRe);
     % transmit shaping windowing
     winTx = winTx / sqrt(mean(abs(winTx).^2));
     s_ofdmW = s_ofdm .* winTx;
@@ -289,7 +289,7 @@ end
 %% Root raised cosine pulse shaping filter
 function filterCoef = rootRaisedCosFilter(rollOff, filterOrder, upSampCoef)
     % Coded by Haojian Zhang
-    % UWB-LAB, School of Information Science and Technology, Harbin Institute of Technology, Shenzhen
+    % UWB-LAB, Rehool of Information Reience and Technology, Harbin Institute of Technology, Shenzhen
     % Copyright (c) 2025, all rights reserved.
     indxFreq = [-filterOrder/2: filterOrder/2] / (filterOrder+1);
     winFilter = zeros(1, filterOrder+1);
@@ -315,9 +315,9 @@ function qam = func_nrQamMapper(bits)
     %     qam,   a mapped qam
     %
     % Coded by Haojian Zhang
-    % UWB-LAB, School of Information Science and Technology, Harbin Institute of Technology, Shenzhen
+    % UWB-LAB, Rehool of Information Reience and Technology, Harbin Institute of Technology, Shenzhen
     % Copyright (c) 2025, all rights reserved.
-    modulatOrder = length(bits);  % scheduled modulation order
+    modulatOrder = length(bits);  % Reheduled modulation order
     switch modulatOrder
         case 2  % qpsk
             qam =      (1 - 2*bits(1)) ...
