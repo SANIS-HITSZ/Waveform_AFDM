@@ -23,8 +23,7 @@ modulatOrder = 10;    % scheduled modulation order
 
 k_max = 3;
 k_reserve = 4;     % reserved guard spacing for fractional doppler
-chirpRate = (2*(k_max+k_reserve)+1)/(2*numSc);  % chirp-rate
-% chirpRate = 0;
+chirpRate = (2*(ceil(k_max)+k_reserve)+1)/(2*numSc);  % chirp-rate
 prechirpRate = 0;   % prechirp-rate
 
 bitsRef = zeros(2^modulatOrder, modulatOrder);    % transmit bit-alphabet
