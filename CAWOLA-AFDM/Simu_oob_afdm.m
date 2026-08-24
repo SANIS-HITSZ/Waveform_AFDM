@@ -1,24 +1,24 @@
-% W-OFDM 与 CP-OFDM 的 OOB 对比
+% Out-of-Band (OOB) emission
 clear; clc; close all;
-% rng(1);                    % 固定随机种子，便于复现实验
+% rng(1);
 
 color_set = [
-    0.600, 0.400, 0.200;   % 棕
-    0.459, 0.439, 0.702;   % 紫罗兰
-    0.106, 0.620, 0.467;   % 深蓝绿
-    0.000, 0.447, 0.741;   % 蓝
-    0.850, 0.325, 0.098    % 红
+    0.600, 0.400, 0.200;   % brown
+    0.459, 0.439, 0.702;   % violet
+    0.106, 0.620, 0.467;   % dark blue-green
+    0.000, 0.447, 0.741;   % blue
+    0.850, 0.325, 0.098    % red
 ];
 
-%% 基本参数
+%% Basic configurations
 numSc        = 4096;                  % number of subcarriers in resource grid
-numSc_schd   = 4096;                  % 有效子载波数
-lenCp        = 288;                   % CP 长度
+numSc_schd   = 4096;                  % scheduled number of resource elements
+lenCp        = 288;                   % length of prefix
 rollOffWin   = 0.2;
-numSym       = 200;                  % OFDM 符号数
-indxSc_schd  = [-numSc_schd/2: numSc_schd/2-1];     % 有效子载波索引
+numSym       = 200;                  % number of AFDM symbols
+indxSc_schd  = [-numSc_schd/2: numSc_schd/2-1];     % scheduled indices of resource elements
 upSampCoef_time = 4;                % upsampling factor in the time domain
-upSampCoef_freq = 8;                % 频域过采样倍数(提升频谱观测密度)
+upSampCoef_freq = 8;                % spectrum upsampling
 modulatOrder = 10;    % scheduled modulation order
 
 k_max = 3;
@@ -44,13 +44,13 @@ rollOffTime  = 0.2;
 filterCoefTx = rootRaisedCosFilter(rollOffTime, filterOrder, upSampCoef_time);
 filterCoefTx = filterCoefTx * sqrt(upSampCoef_time);
 
-%% 生成QAM数据
+%% QAM data
 symData = round(rand(numSym+2,numSc_schd)*2^modulatOrder - 0.5);   % transmit decimal symbols
 qamData = qamsRef(symData+1);     % transmit qams
 X = zeros(numSym+2, numSc);
 X(:, mod(indxSc_schd,numSc)+1) = qamData;
 
-%% CPP-AFDM波形
+%% CPP-AFDM
 lenCp_ext = 0;
 winTx = rectwin(numSc).';
 s_overSamp = [];
@@ -75,10 +75,10 @@ for i_sym = 0:(numSym+2)-1
 end
 s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
     end-upSampCoef_time*(numSc+lenCp+lenCp_ext));
-% 谱估计
+% spectral estimation
 [psd_cppAfdm, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
-%% PS-AFDM (legacy) 波形
+%% PS-AFDM (legacy)
 lenCp_ext = 0;
 winTx = chebwin(numSc, 90).';
 s_overSamp = [];
@@ -103,10 +103,10 @@ for i_sym = 0:(numSym+2)-1
 end
 s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
     end-upSampCoef_time*(numSc+lenCp+lenCp_ext));
-% 谱估计
+% spectral estimation
 [psd_psAfdm, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
-%% WOLA/CAWOLA-AFDM波形1
+%% WOLA/CAWOLA-AFDM
 lenWin_oob = 8;
 lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
@@ -143,10 +143,10 @@ for i_sym = 0:(numSym+2)-1
 end
 s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
     end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
-% 谱估计
+% spectral estimation
 [psd_wolaAfdm1, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
-%% WOLA/CAWOLA-AFDM波形2
+%% WOLA/CAWOLA-AFDM
 lenWin_oob = 16;
 lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
@@ -183,10 +183,10 @@ for i_sym = 0:(numSym+2)-1
 end
 s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
     end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
-% 谱估计
+% spectral estimation
 [psd_wolaAfdm2, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
-%% WOLA/CAWOLA-AFDM波形3
+%% WOLA/CAWOLA-AFDM
 lenWin_oob = 32;
 lenCp_ext = ceil(rollOffWin*numSc);   % length of extended cyclic-prefix for receiving windowing
 lenCp_ext = lenCp_ext + mod(lenCp_ext,2);   % even number
@@ -223,10 +223,10 @@ for i_sym = 0:(numSym+2)-1
 end
 s_overSamp = s_overSamp(upSampCoef_time*(numSc+lenCp+lenCp_ext)+1: ...
     end-upSampCoef_time*(numSc+lenCp+lenCp_ext+lenWin_oob));
-% 谱估计
+% spectral estimation
 [psd_wolaAfdm3, ~] = pwelch(s_overSamp, winAnalysis, lenOverlap, lenPSD, 'twosided');
 
-%% 画图
+%% Figures
 powerOffset_welch = 2*pi/upSampCoef_time;
 freqLabel = [-lenPSD/2: lenPSD/2-1] * (upSampCoef_time*numSc)/lenPSD;
 figure; 
