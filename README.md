@@ -1,4 +1,4 @@
-This program shows the simulation codes of the researches about *__Affine Frequency Division Multiplexing (AFDM)__* waveform from UWB-LAB (director Prof. Tingting Zhang), School of Information Science and Technology, Harbin Institute of Technology (Shenzhen), China.
+This program provides the simulation codes of the researches about *__Affine Frequency Division Multiplexing (AFDM)__* waveform from UWB-LAB (director Prof. Tingting Zhang), School of Information Science and Technology, Harbin Institute of Technology (Shenzhen), China.
 
 Any questions or research collaborations: 
 <br>zhanghaojian@hotmail.com (ORCID: https://orcid.org/0000-0001-7552-1925)
