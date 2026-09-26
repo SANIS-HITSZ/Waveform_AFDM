@@ -1,7 +1,6 @@
 This program provides the simulation codes of the researches about *__<ins>Affine Frequency Division Multiplexing (AFDM)<ins>__* waveform from SANIS-LAB (director Prof. Tingting Zhang), School of Information Science and Technology, Harbin Institute of Technology (Shenzhen), China.
 
-Any questions or research collaborations: 
-<br>zhanghaojian@hotmail.com (ORCID: https://orcid.org/0000-0001-7552-1925)
+Any questions or research collaborations: zhanghaojian@hotmail.com
 
 All the codes in this program have been verified to run on MATLAB 2023b.
 
