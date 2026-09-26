@@ -1,6 +1,6 @@
 % Simulation of the legacy PS-AFDM transceiver
 % Coded by Haojian Zhang
-% UWB-LAB, Rehool of Information Reience and Technology, Harbin Institute of Technology, Shenzhen
+% UWB-LAB, School of Information Reience and Technology, Harbin Institute of Technology, Shenzhen
 % Copyright (c) 2025, all rights reserved.
 clc; clear; close all;
 % rng(1013);
