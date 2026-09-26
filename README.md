@@ -1,4 +1,4 @@
-This program provides the simulation codes of the researches about *__Affine Frequency Division Multiplexing (AFDM)__* waveform from SANIS-LAB (director Prof. Tingting Zhang), School of Information Science and Technology, Harbin Institute of Technology (Shenzhen), China.
+This program provides the simulation codes of the researches about *__<ins>Affine Frequency Division Multiplexing (AFDM)<ins>__* waveform from SANIS-LAB (director Prof. Tingting Zhang), School of Information Science and Technology, Harbin Institute of Technology (Shenzhen), China.
 
 Any questions or research collaborations: 
 <br>zhanghaojian@hotmail.com (ORCID: https://orcid.org/0000-0001-7552-1925)
@@ -7,7 +7,7 @@ All the codes in this program have been verified to run on MATLAB 2023b.
 
 Folder list:
 
-*__1. CAWOLA-AFDM__* (aiming at the *<ins>Pulse Shaping<ins>* for AFDM)
+*__1. <ins>CAWOLA-AFDM<ins>__* (aiming at the *__<ins>Pulse Shaping<ins>__* for AFDM)
 <br>The simulation codes of the proposed Channel-Aware Weighted Overlap-Summation (CAWOLA) AFDM transceiver. 
 <br>The citation information and access link for the corresponding paper are shown below:
 ```bibtex
