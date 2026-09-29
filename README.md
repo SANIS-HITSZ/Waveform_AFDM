@@ -4,7 +4,7 @@ Any questions or research collaborations: zhanghaojian@hotmail.com
 
 All the codes in this program have been verified to run on MATLAB 2023b.
 
-Folder list:
+Folder List:
 
 *__1. <ins>CAWOLA-AFDM<ins>__* (aiming at the *__<ins>Pulse Shaping<ins>__* for AFDM)
 <br>The simulation codes of the proposed Channel-Aware Weighted Overlap-Summation (CAWOLA) AFDM transceiver. 
