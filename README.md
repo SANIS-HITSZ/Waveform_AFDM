@@ -12,7 +12,7 @@ Folder List:
 @article{cawola_afdm,
   title={Overlap-Summation-Based Pulse Shaping Transceiver for Affine Frequency Division Multiplexing},
   author={Haojian Zhang, Jiayan Yang, Tingting Zhang, Xu Zhu, and Qinyu Zhang},
-  journal={SCIENCE CHINA Information Sciences (or Sci. China Inf. Sci.)},
+  journal={SCIENCE CHINA Information Sciences (or, Sci. China Inf. Sci.)},
   year={2026},
   publisher={Science China Press},
   doi={10.1360/s11432-026-5192-6},
