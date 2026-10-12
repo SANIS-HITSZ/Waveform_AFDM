@@ -5,7 +5,7 @@ Any questions or research collaborations: zhanghaojian@hotmail.com
 
 Folder List:
 
-*__1. <ins>CAWOLA-AFDM<ins>__* (aiming at the *__<ins>Pulse Shaping<ins>__* for AFDM)
+*__1. <ins>CAWOLA-AFDM<ins>__* (aiming at the *__<ins>Receive Pulse Shaping<ins>__* for AFDM)
 <br>The simulation codes of the proposed Channel-Aware Weighted Overlap-Summation (CAWOLA) AFDM transceiver. 
 <br>The citation information and access link for the corresponding paper are shown below:
 ```bibtex
